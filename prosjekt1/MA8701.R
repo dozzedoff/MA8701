@@ -1,6 +1,7 @@
 # Necessary libraries
 library(Matrix)
 library(glmnet)
+library(gglasso)
 
 set.seed(3012)
 
@@ -41,25 +42,54 @@ test_ds$type_of_lesion[which(test_ds$type_of_lesion==2)]<-1
 summary(test_ds[,c(1,2,3,169,425,441,454,461,468,501,601)])
 
 
-
-glm_test = glm(type_of_lesion~.,data=test_ds, family="binomial")
+# logistic regression does not make sense, it refuses to provide meaningful output, presumably 
+# due to the large number of covariates
 
 #test_ds$type_of_light_1_WL_2_NBL<- as.factor(test_ds$type_of_light_1_WL_2_NBL)
 #test_ds$type_of_lesion<- as.factor(test_ds$type_of_lesion)
 
-xs <- model.matrix(type_of_lesion~.,data=test_ds)[,-1]
-xss <- scale(xs)
+x_no_zero <- model.matrix(type_of_lesion~.,data=test_ds)[,-1]
+x_no_zero_scale_1 <- scale(x_no_zero)
+x_no_zero_scale_1[is.nan(x_no_zero_scale_1)] <- 0
+#x_no_zero_new <- x_no_zero[,-(which(colSums(x_no_zero)==0))]
+#stdz_xs <- scale(x_no_zero_new)
 
 ys <- test_ds[,1]
 
-lassofit=glmnet(x=xs,y=ys,alpha=1,standardize=TRUE,family="binomial") # already standardized
+
+#data_glm <- data.frame(ys,stdz_xs)
+#colnames(data_glm)[1] <- "type_of_lesion"
+#glm_test = glm(type_of_lesion~.,data=data_glm, family="binomial",control = list(maxit = 50))
+x_no_zero_scale <- cbind(1,x_no_zero_scale_1)
+
+index_s <- c(1,rep(2,166),rep(3,256),rep(3,16),rep(4,13), rep(5,7), rep(6,7), rep(7,33),rep(8,100),rep(9,100))
+#lmax <- lambdamax(x=x_no_zero_scale, y=ys,index=index_s,penscale=sqrt, model = LogReg(), center = FALSE,
+#                  standardize = FALSE)*0.5^(0:699)
+#grplasso_test <- grplasso(x_no_zero_scale, ys, model = LogReg(), penscale=sqrt, center = FALSE, standardize = FALSE, lambda=lmax, index=index_s)
+ys_gl <- ys
+ys_gl[which(ys_gl==0)]<- -1
+
+
+cv_testing_gglasso <- cv.gglasso(x=x_no_zero_scale_1, y=ys_gl, group=index_s, nfolds=5, loss="logit")
+plot(cv_testing_gglasso)
+
+group_lasso_coef <- coef(cv_testing_gglasso$gglasso.fit, s=cv_testing_gglasso$lambda.1se)
+coef_value_gglasso <- group_lasso_coef[which(group_lasso_coef!=0)]
+coef_name_gglasso <- row.names(group_lasso_coef)[which(group_lasso_coef!=0)]
+# KPCA, color gray level co-occurence, textural feature, type of light
+
+
+
+
+lassofit=glmnet(x=x_no_zero_scale_1,y=ys,alpha=1,standardize=FALSE,family="binomial") # already standardized
 plot(lassofit,xvar="lambda",label=TRUE)
 
-cv.lasso=cv.glmnet(x=xs,y=ys,alpha=1,standardize=TRUE,family="binomial")
+cv.lasso=cv.glmnet(x=x_no_zero_scale_1,y=ys,alpha=1,standardize=FALSE,family="binomial")
 print(paste("The lamda giving the smallest CV error",cv.lasso$lambda.min))
 
 plot(lassofit,xvar="lambda",label=TRUE)
 abline(v=log(cv.lasso$lambda.1se))
+plot(cv.lasso)
 
 # Lasso method
 
