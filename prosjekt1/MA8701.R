@@ -37,7 +37,8 @@ test_ds$type_of_lesion[which(test_ds$type_of_lesion==1)]<-0
 test_ds$type_of_lesion[which(test_ds$type_of_lesion==3)]<-1
 test_ds$type_of_lesion[which(test_ds$type_of_lesion==2)]<-1
 
-
+# We have a look at the different representatives of the "clusters" of variables
+summary(test_ds[,c(1,2,3,169,425,441,454,461,468,501,601)])
 
 
 
@@ -61,9 +62,15 @@ plot(lassofit,xvar="lambda",label=TRUE)
 abline(v=log(cv.lasso$lambda.1se))
 
 # Lasso method
-resmat=cbind(coef(lassofit,s=cv.lasso$lambda.1se))
-colnames(resmat)=c("lasso logistic")
-print(resmat)
+
+lasso_coef <- coef(lassofit,s=cv.lasso$lambda.1se)
+lasso_coef_print <- cbind(names(test_ds[lasso_coef@i+1]),lasso_coef@x)
+lasso_coef_print[1,1] <- "Intercept"
+lasso_coef_print
+
+#resmat=cbind(coef(lassofit,s=cv.lasso$lambda.1se))
+#colnames(resmat)=c("lasso logistic")
+
 
 # Choice of hyperparameters
 
