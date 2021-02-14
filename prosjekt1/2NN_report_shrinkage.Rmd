@@ -1,6 +1,6 @@
 ---
-title: "2NN - Gastrointestinal lesions"
-author: "Bjerke, Martin & Spremic, Mina"
+title: "Project 1 - Shrinkage"
+author: "2NN: Bjerke, Martin & Spremic, Mina"
 date: "2/10/2021"
 output: pdf_document
 ---
@@ -9,30 +9,60 @@ output: pdf_document
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
-## Project 1 - Shrinkage
 
-The goal of the project is to apply the shrinkage methods to a dataset of the groups choice. As one of the main methods of the first part of the course has been lasso, applied in cases when the number of covariates is much larger than number of observations, in addition to there being very few observations. Hence, we have chosen a dataset satisfying these criteria. The dataset in question is a Gastrointestinal Lesions in Regular Colonoscopy data set, which can be accessed at *insert url*.\\
+
+# Introduction
+
+The goal of the project is to apply the shrinkage methods to a dataset of the groups choice. As one of the main methods of the first part of the course has been lasso, applied in cases when the number of covariates is much larger than number of observations, in addition to there being very few observations. Hence, we have chosen a dataset satisfying these criteria. 
+
+# Dataset
+The dataset in question is a Gastrointestinal Lesions in Regular Colonoscopy dataset, which can be accessed at *insert url*.\\
+
 
 This dataset had to be labeled all over again, as the txt file including the data, did not have a header. The relabeled dataset is available in the git-repo. 
 In this dataset there are 701 covaraites, which are not neccessarily easy to decipher, both due to the large number and the lack of information on them. The data set is connected to a published paper "quote this in a nice way:Computer-Aided Classification of Gastrointestinal Lesions in Regular Colonoscopy", which can be accessed here *insert url*. \\
 
 This is a classification type of problem, where we wish to classify a growth in the bowels, whether it is benign or malignang. The covariates that we have to aid us in this are based on the videos of these growths (lesions). Features are extractes from the videos, and they are the following:\\
 
-*insert a table with the different sets of covariates and their meaning, to the best of our abilities*
+* insert a table with the different sets of covariates and their meaning, to the best of our abilities*
+* Comment on the fact that some of the groups of covariates have are mostly zero
+* visualize one of each of the covaraites through summary
+* visualize the proportion of benign and malignant observations
 
+# Analysis
 
+```{r data, include=FALSE}
+data_set <- read.table("gastroenterology_dataset/data.txt", header= FALSE, sep=",", dec =".", colClasses = "numeric")
+df_gl <- as.data.frame(data_set)
+df_gl <- as.data.frame(t(df_gl))
+names(df_gl)[1] <- "type_of_lesion"
+names(df_gl)[2] <- "type_of_light_1_WL_2_NBL"
+names(df_gl)[3:168] <- paste0("Textural_feature_AHT",1:166)
+names(df_gl)[169:424] <- paste0("Rotational_invariant_LBP", 1:256)
+names(df_gl)[425:440] <- paste0("Color_naming", 1:16)
+names(df_gl)[441:453] <- paste0("Discriminative_color", 1:13)
+names(df_gl)[454:460] <- paste0("Hue", 1:7)
+names(df_gl)[461:467] <- paste0("Opponent", 1:7)
+names(df_gl)[468:500] <- paste0("Color_gray-level_co-occurrence_matrix", 1:33)
+names(df_gl)[501:600] <- paste0("shapeDNA", 1:100)
+names(df_gl)[601:700] <- paste0("KPCA", 1:100)
 
-
-```{r cars}
-summary(cars)
 ```
 
-## Including Plots
+We will not be including the head of the dataset as it is rather large, with 700 covariates, and it takes up too many pages. If the reader is interested, he/she can insepct it on own initiative.
 
-You can also embed plots, for example:
+```{r mal_ben, echo=TRUE}
 
-```{r pressure, echo=FALSE}
-plot(pressure)
+table(df_gl$type_of_lesion)
+
 ```
+* Talk about purpose of shrinkage and lasso as the chosen one
+* Mentioned the failure of logistic regression - does not converge
+* Test out group lasso, suspecting that due to lack of categorical variables, this will perform rather poorly.
 
-Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
+
+# Results
+
+
+# References
+
