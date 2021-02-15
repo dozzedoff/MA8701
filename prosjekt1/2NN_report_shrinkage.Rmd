@@ -222,8 +222,17 @@ We could speculate whether the results would have been different have we had opt
 
 
 # References
-* dataset source
-* paper using the dataset
-* additional links to papers describing different covariates
+[1]: "Gastrointestinal Lesions in Regular Colonoscopy Data Set"  - https://archive.ics.uci.edu/ml/datasets/Gastrointestinal+Lesions+in+Regular+Colonoscopy 
+[2]: "Computer-Aided Classification of Gastrointestinal Lesions in Regular Colonoscopy" https://pubmed.ncbi.nlm.nih.gov/28005009/ 
+[3]: R. Nava, G. Cristo ́bal, and B. Escalante-Ram ́ırez, “Invariant texture analysis through local binary patterns,” CoRR, vol. abs/1111.7271, 2011.
+[4]: F. Riaz, F. B. Silva, M. Dinis-Ribeiro, and M. T. Coimbra, “Invariant gabor texture descriptors for classification of gastroenterology images,” IEEE Trans. Biomed. Engineering, vol. 59, no. 10, pp. 2893–2904, 2012.
+[5]: M. Reuter, F.-E. Wolter, and N. Peinecke, “Laplace–beltrami spectra as shape-dnaof surfaces and solids,” Computer-Aided Design, vol. 38,
+no. 4, pp. 342–366, 2006.
+[6]:C. M. Bishop, Pattern recognition and machine learning. Springer,
+2006.
+[7]: grplasso package https://cran.r-project.org/web/packages/grplasso/grplasso.pdf
+[8]: gglasso package https://cran.r-project.org/web/packages/gglasso/gglasso.pdf
+[9]: glmnet package https://cran.r-project.org/web/packages/glmnet/glmnet.pdf
+[10]: matrix package https://cran.r-project.org/web/packages/Matrix/Matrix.pdf
 * reference to matrix, glmnet, grplasso, gglasso packages
 
