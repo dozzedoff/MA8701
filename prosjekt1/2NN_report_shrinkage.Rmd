@@ -26,8 +26,8 @@ The dataset in question is a Gastrointestinal Lesions in Regular Colonoscopy dat
 This dataset contains a response variable, which is one of the three types of lesions (growth): hyperplasic, adenoma and serates, with the firts one being benign and the latter two malignant. 
 The rest of the covariates, 699 of them, have been extracted from video and represent different aspects it through rotation, texture, colour, contrast etc. They are divided roughly in three groups being: textural features, color features and shape features, all having multiple subgroups. 
 
-This dataset had to be labeled all over again, as the txt file including the data, did not have a header. The relabeled dataset is available in the [git-repo](https://github.com/dozzedoff/MA8701/tree/main/prosjekt1). 
-In this dataset, majority of the 701 covaraites have not been easy to decipher, both due to the large number and the lack of information on them, both on the webpage of the dataset, but also in the paper. Most of the information about the variables have been references to other papers which do analysis and describe the process of extracting some of these variables. We will include references to some of these articles in the end of the report. The dataset is connected to a published paper [Computer-Aided Classification of Gastrointestinal Lesions in Regular Colonoscopy](https://hal.archives-ouvertes.fr/hal-01291797v2/document). 
+This dataset had to be labeled all over again, as the .txt file including the data did not have a header. The relabeled dataset is available in the [git-repo](https://github.com/dozzedoff/MA8701/tree/main/prosjekt1). 
+In this dataset, majority of the 699 covariates have not been easy to decipher, both due to the large number and the lack of information on them, both on the webpage of the dataset, but also in the paper. Most of the information about the variables have been references to other papers which do analysis and describe the process of extracting some of these variables. We will include references to some of these articles in the end of the report. The dataset is connected to a published paper [Computer-Aided Classification of Gastrointestinal Lesions in Regular Colonoscopy](https://hal.archives-ouvertes.fr/hal-01291797v2/document). 
 
 The names of the covariates, which have been used as labels are the following: 
 
@@ -38,7 +38,7 @@ Type of light used for recording\*|| 1
 || AHT - Autocorrelation Homogeneous Texture
 || (Invariant Gabor Texture)  | 166
 ||Rotational Invariant LBP| 256
-2D COLOR FEATURES||76
+2D color features||76
 ||Color naming|16
 ||Discriminative Color|13
 ||Hue|7
@@ -49,19 +49,19 @@ Type of light used for recording\*|| 1
 || shapeDNA | 100
 || KPCA | 100
 
-\*Types of light are 1=WL (White Light), 2=NBI(Narrow Band Imaging)
+\*Types of the light are 1=WL (White Light), 2=NBI(Narrow Band Imaging)
 
 
 
-We wish to specify that this is a classification problem. Provided in the dataset are three clases of the response. We have chosen not to use all of the three classes in our problem, and have instead merged two of the classes. Meaning, instead of there being classes: hyperplasic, adenoma and serates, we have malignant and benign instead.  
-An observations made is also that some of the covariates had only zero entries, but due to lack of documentation on the cause of this, we have chosen to keep all the covariates in the dataset.
+We wish to specify that this is a classification problem. Provided in the dataset are three clases of the response. We have chosen not to use all of the three classes in our problem, and have instead merged two of the classes. Instead of there being classes: hyperplasic, adenoma and serates, we have malignant and benign instead.  
+An observations made is that some of the covariates had only zero entries, but due to lack of documentation on the cause of this, we have chosen to keep all the covariates in the dataset.
 
 
 
 # Analysis
 
-For this classification problem, we wish to use a logistic regression, lasso and group lasso.
-The reason behind using group lasso was due to there being, from our point of view, clear groupings of the variables.
+For this classification problem, we wish to use logistic regression, lasso and group lasso.
+
 
 ```{r data, include=FALSE}
 data_set <- read.table("gastroenterology_dataset/data.txt", header= FALSE, sep=",", dec =".", colClasses = "numeric")
@@ -87,7 +87,7 @@ test_ds$type_of_lesion[which(test_ds$type_of_lesion==2)]<-1
 
 ```
 
-We will not be including the head of the dataset as it is rather large, with 699 covariates, and it takes up too many pages. If the reader is interested, he/she can insepct it on their own initiative.
+We will not be including the head or the top rows of the dataset as it is rather large, with 699 covariates, and it takes up too many pages. If the reader is interested, he/she can insepct it on their own initiative.
 
 ```{r mal_ben, echo=TRUE}
 
@@ -95,7 +95,7 @@ table(test_ds$type_of_lesion)
 summary(test_ds[,c(1,2,3,169,425,441,454,461,468,501,601)])
 
 ```
-Unfortunately, the logistic regression did not manage to run, and we have recieved an error: does not converge, indicating that we most probably have multicollinearity issues and the issue with number covariates being too large comapred to number of observations.
+Unfortunately, the logistic regression did not manage to run, and we have recieved an error: does not converge, indicating that we most probably have multicollinearity issues and the issue with number of covariates being too large comapred to number of observations. We have attempted to surpass this by increasing the number of iterations, but eventho the it converged, it did not provide meaningful results, with very many coefficients being set to NA.
 
 ```{r include=FALSE}
 # design matrix
@@ -120,7 +120,7 @@ ys_gl[which(ys_gl==0)]<- -1
 
 ```
 
-
+## Lasso
 We proceed using the lasso, using the glmnet packaget. We perform cross-validation using the cv.lasso function from glmnet package to find the optimal lambda.
 We plot the lasso-plot, visualising at which $\lambda$s the coefficients get shrunk to zero.
 
@@ -147,7 +147,7 @@ plot(cv.lasso)
 
 
 
-We can see the covariates picked with the lasso method. 
+We can see the covariates picked with the lasso method. These are: textural feature AHT number 110, rotationally invariante LBP number 4 and 52. In addition three of the covariates realted to the level of grayscale are included as well. Finally a KPCA number 2 is included.  It is rather difficult to say whether these results were as expected, considering the lack of knowledge about the covariates.
 ```{r echo=FALSE}
 # Lasso method results of coefficients picked, nice print-out
 
@@ -158,11 +158,12 @@ lasso_coef_print
 
 
 ```
-
-
+## Group Lasso
+We attempt the group lasso now. The groups chosen are structured such that the covariates belonging to the group of variables presented in the begining, are in the same group in this analysis as well. This has been the only sensible decision of group split, taken into considerationg the number of covariates and the difficulties considering their origin. 
 
 
 ```{r grouplasso, echo=FALSE}
+set.seed(3012)
 cv_testing_gglasso <- cv.gglasso(x=x_no_zero_scale_1, y=ys_gl, group=index_s, nfolds=5, loss="logit")
 plot(cv_testing_gglasso$gglasso.fit )
 
@@ -177,16 +178,14 @@ print_coef_gglasso
 
 ```
 
-* Group lasso has been attempted, gives similar results
-
+The covariate groups chosen by the group lasso are as given above. If we compare it to the ones chosen by the lasso, we observe that the covariates chosen by the lasso come from the three of groups picked by the group lasso. The differene between the two is that the group lasso picks type of light covariate but not the rotational invariance.
 
 
 # Inference
 
-* we have chosen to do bootstrapping on lasso only, as both lasso and group lasso produced similar results.
+We choose to do the bootstrapping on the lasso only.
 
-
-```{r echo=FALSE}
+```{r bootstrap, echo=FALSE}
 set.seed(3012)
 B=1000
 n=nrow(x_no_zero_scale_1)
@@ -196,7 +195,7 @@ lasso_mx=matrix(ncol=p+1,nrow=B)
 # and weight argument for giving the new bootstrapped data
 for (b in 1:B)
 {
-  print(b)
+  #print(b)
   idx=sort(sample(1:n,replace=TRUE))
   wids=rep(0,n)
   for (i in 1:n)
@@ -208,31 +207,42 @@ for (b in 1:B)
 investigate_mx <- lasso_mx[,which(lasso_coef != 0)]
 colnames(investigate_mx)=c(lasso_coef_print[,1])
 
-boxplot(investigate_mx)
+boxplot(investigate_mx)  
+```
+
+
+
+```{r echo=FALSE}
+
 boxplot(investigate_mx[,2:8])
 
+
+```
+
+```{r echo=FALSE}
 lasso0perc=apply(abs(investigate_mx)<.Machine$double.eps,2,mean)
 barplot(lasso0perc)
 ```
 
-# Discussion
+From the boxplots we observe that majority of the boxes have median at zero, or are very close to zero. This is further confirmed throught the barplot. In the barplot we can see that almost all of the coefficients are zero at 40\% of the time. The only coefficient that is noticeably different, and is almost never zero, is one of the coefficients for the gray-level contrast.
 
-After the analysis has been conducted, and inference has been performed, and the results were rather surprising. We did not know exactly what to expect due to the large number of covariates, most of which have been extracted from videos, as mentioned previously. Hence, the meaning and significanc are rather difficult to interpret.
+# Discussion and concluding words
+
+After the analysis has been conducted, and inference has been performed, the results were slightly suprising. Eventhough we did not know exactly what to expect due to the large number of covariates, most of which have been extracted from videos, as mentioned previously, it was rather suprising only one of the coefficients was non-zero less than 40\% of the time. 
 We could speculate whether the results would have been different have we had opted out for a classification problem with three classes.
 
 
 # References
-[1]: "Gastrointestinal Lesions in Regular Colonoscopy Data Set"  - https://archive.ics.uci.edu/ml/datasets/Gastrointestinal+Lesions+in+Regular+Colonoscopy 
-[2]: "Computer-Aided Classification of Gastrointestinal Lesions in Regular Colonoscopy" https://pubmed.ncbi.nlm.nih.gov/28005009/ 
-[3]: R. Nava, G. Cristo ́bal, and B. Escalante-Ram ́ırez, “Invariant texture analysis through local binary patterns,” CoRR, vol. abs/1111.7271, 2011.
-[4]: F. Riaz, F. B. Silva, M. Dinis-Ribeiro, and M. T. Coimbra, “Invariant gabor texture descriptors for classification of gastroenterology images,” IEEE Trans. Biomed. Engineering, vol. 59, no. 10, pp. 2893–2904, 2012.
+[1]: "Gastrointestinal Lesions in Regular Colonoscopy Data Set"  - https://archive.ics.uci.edu/ml/datasets/Gastrointestinal+Lesions+in+Regular+Colonoscopy  
+[2]: "Computer-Aided Classification of Gastrointestinal Lesions in Regular Colonoscopy" https://pubmed.ncbi.nlm.nih.gov/28005009/  
+[3]: R. Nava, G. Cristo bbal, and B. Escalante-Ramiırez, “Invariant texture analysis through local binary patterns,” CoRR, vol. abs/1111.7271, 2011.  
+[4]: F. Riaz, F. B. Silva, M. Dinis-Ribeiro, and M. T. Coimbra, “Invariant gabor texture descriptors for classification of gastroenterology images,” IEEE Trans. Biomed. Engineering, vol. 59, no. 10, pp. 2893–2904, 2012.  
 [5]: M. Reuter, F.-E. Wolter, and N. Peinecke, “Laplace–beltrami spectra as shape-dnaof surfaces and solids,” Computer-Aided Design, vol. 38,
-no. 4, pp. 342–366, 2006.
+no. 4, pp. 342–366, 2006.  
 [6]:C. M. Bishop, Pattern recognition and machine learning. Springer,
-2006.
-[7]: grplasso package https://cran.r-project.org/web/packages/grplasso/grplasso.pdf
-[8]: gglasso package https://cran.r-project.org/web/packages/gglasso/gglasso.pdf
-[9]: glmnet package https://cran.r-project.org/web/packages/glmnet/glmnet.pdf
-[10]: matrix package https://cran.r-project.org/web/packages/Matrix/Matrix.pdf
-* reference to matrix, glmnet, grplasso, gglasso packages
+2006.  
+[7]: grplasso package https://cran.r-project.org/web/packages/grplasso/grplasso.pdf  
+[8]: gglasso package https://cran.r-project.org/web/packages/gglasso/gglasso.pdf  
+[9]: glmnet package https://cran.r-project.org/web/packages/glmnet/glmnet.pdf  
+[10]: matrix package https://cran.r-project.org/web/packages/Matrix/Matrix.pdf  
 

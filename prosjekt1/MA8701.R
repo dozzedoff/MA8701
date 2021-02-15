@@ -90,7 +90,7 @@ index_s <- c(1,rep(2,166),rep(3,256),rep(3,16),rep(4,13), rep(5,7), rep(6,7), re
 ys_gl <- ys
 ys_gl[which(ys_gl==0)]<- -1
 
-
+set.seed(3012)
 cv_testing_gglasso <- cv.gglasso(x=x_no_zero_scale_1, y=ys_gl, group=index_s, nfolds=5, loss="logit")
 plot(cv_testing_gglasso)
 
