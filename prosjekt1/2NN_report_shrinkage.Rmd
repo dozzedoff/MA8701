@@ -18,16 +18,16 @@ set.seed(3012)
 
 # Introduction
 
-The goal of the project is to apply the shrinkage methods to a dataset of the groups choice. As one of the main methods of the first part of the course has been lasso, applied in cases when the number of covariates is much larger than number of observations, in addition to there being very few observations. Hence, we have chosen a dataset satisfying these criteria. 
+The goal of this project is to apply the shrinkage methods to a dataset of the groups choice. As one of the main methods, of the first part of the course, has been lasso, that is often applied in cases when the number of covariates is much larger than number of observations, in addition to there being very few observations. Hence, we have chosen a dataset satisfying these criteria. 
 
 # Dataset
 The dataset in question is a Gastrointestinal Lesions in Regular Colonoscopy dataset, which can be accessed at https://archive.ics.uci.edu/ml/datasets/Gastrointestinal+Lesions+in+Regular+Colonoscopy.
 
 This dataset contains a response variable, which is one of the three types of lesions (growth): hyperplasic, adenoma and serates, with the firts one being benign and the latter two malignant. 
-The rest of the covariates, 699 of them, have been extracted from video and represent different aspects it through rotation, texture, colour, contrast etc. They are divided roughly in three groups being: textural features, color features and shape features, all having multiple subgroups. 
+The rest of the covariates, 699 of them, have been extracted from video, more specificly from a colonoscopy (a camera being sent through the bowels), and represent different aspects of it, through rotation, texture, colour, contrast etc. They are divided roughly in three groups, which are textural features, color features and shape features, all having multiple subgroups. 
 
-This dataset had to be labeled all over again, as the .txt file including the data did not have a header. The relabeled dataset is available in the [git-repo](https://github.com/dozzedoff/MA8701/tree/main/prosjekt1). 
-In this dataset, majority of the 699 covariates have not been easy to decipher, both due to the large number and the lack of information on them, both on the webpage of the dataset, but also in the paper. Most of the information about the variables have been references to other papers which do analysis and describe the process of extracting some of these variables. We will include references to some of these articles in the end of the report. The dataset is connected to a published paper [Computer-Aided Classification of Gastrointestinal Lesions in Regular Colonoscopy](https://hal.archives-ouvertes.fr/hal-01291797v2/document). 
+This dataset had to be labeled all over again, as the .txt file including the data did not have a header. Relabeling code is available in the [git-repo](https://github.com/dozzedoff/MA8701/tree/main/prosjekt1). 
+In this dataset, majority of the 699 covariates have not been easy to decipher, both due to their large number and the lack of information on them, both on the webpage of the dataset, but also in the paper that the dataset is connected to. Most of the information about the variables have been references to other papers which do analysis and describe the process of extracting some of these variables from video. We will include references to some of these articles in the end of the report. The dataset is connected to a published paper [Computer-Aided Classification of Gastrointestinal Lesions in Regular Colonoscopy](https://hal.archives-ouvertes.fr/hal-01291797v2/document). 
 
 The names of the covariates, which have been used as labels are the following: 
 
@@ -54,13 +54,15 @@ Type of light used for recording\*|| 1
 
 
 We wish to specify that this is a classification problem. Provided in the dataset are three clases of the response. We have chosen not to use all of the three classes in our problem, and have instead merged two of the classes. Instead of there being classes: hyperplasic, adenoma and serates, we have malignant and benign instead.  
-An observations made is that some of the covariates had only zero entries, but due to lack of documentation on the cause of this, we have chosen to keep all the covariates in the dataset.
+An observations made is that some of the covariates had only zero entries, but due to lack of documentation on the cause of this, we have chosen to keep all the covariates in the dataset. Finally, it is worth mentioning that there actually are only 76 unique cases in the dataset, that have been measures twice, using different light.
 
 
 
 # Analysis
 
-For this classification problem, we wish to use logistic regression, lasso and group lasso.
+The problem at hand is a classification problem. As such, we have chosen to apply logistic regression, lasso and group lasso. We attampt using logistic regression, hoping it can serve as sort of reference. The reason behind choosing lasso is due to the large number of covariates in the dataset, which we hope could be shrunk. Group lasso is chosen due to a natural grouping of the variables due to the structuring of the dataset.  
+
+We show a contigency table, showing the proportion of the number of positive and negative responses from the dataset and present some simple summary of variables representing each of the main groups. Due to the large number of covariates, and inability to deem some of them more important than others, due to lack of domain knowledge, we conclude the exploratory analysis with that. If the reader is interested in all of the covariates, we suggest they inspect the covaraites on their own initiative.
 
 
 ```{r data, include=FALSE}
@@ -87,15 +89,18 @@ test_ds$type_of_lesion[which(test_ds$type_of_lesion==2)]<-1
 
 ```
 
-We will not be including the head or the top rows of the dataset as it is rather large, with 699 covariates, and it takes up too many pages. If the reader is interested, he/she can insepct it on their own initiative.
 
 ```{r mal_ben, echo=TRUE}
 
-table(test_ds$type_of_lesion)
+table(test_ds$type_of_lesion, dnn=c("Benign Malignant"))
+
 summary(test_ds[,c(1,2,3,169,425,441,454,461,468,501,601)])
 
 ```
-Unfortunately, the logistic regression did not manage to run, and we have recieved an error: does not converge, indicating that we most probably have multicollinearity issues and the issue with number of covariates being too large comapred to number of observations. We have attempted to surpass this by increasing the number of iterations, but eventho the it converged, it did not provide meaningful results, with very many coefficients being set to NA.
+
+## Logistic regression
+
+Unfortunately, the logistic regression did not manage to run, and we have recieved an error: *does not converge*, indicating that we most probably have multicollinearity issues and the issue with number of covariates being too large comapared to the number of observations. We have attempted to surpass this by increasing the number of iterations, but even though it converges, it does not provide meaningful results, with very many coefficients being set to NA.
 
 ```{r include=FALSE}
 # design matrix
@@ -121,33 +126,45 @@ ys_gl[which(ys_gl==0)]<- -1
 ```
 
 ## Lasso
-We proceed using the lasso, using the glmnet packaget. We perform cross-validation using the cv.lasso function from glmnet package to find the optimal lambda.
-We plot the lasso-plot, visualising at which $\lambda$s the coefficients get shrunk to zero.
 
-Additionally we show the minimum $\lambda$ as well as one standard deviation $\lambda$.
+We proceed applying the lasso, as implemented in the glmnet package.
+
+Cross-validation is performed using the cv.lasso function from glmnet package in order to find the optimal lambda.
+We plot the lasso-plot, visualising at which $\lambda$s the coefficients get shrunk to zero, and how many of them have not been shrunken.
+
+Additionally we show the value minimum $\lambda$ as well as one standard deviation $\lambda$.
 
 ```{r lasso, echo=FALSE}
+set.seed(3012)
 lassofit=glmnet(x=x_no_zero_scale_1,y=ys,alpha=1,standardize=FALSE,family="binomial") # already standardized
 #plot(lassofit,xvar="lambda",label=TRUE)
 #mtext("Lasso",font=2, side = 3, line = -2, outer = TRUE)
 
+# question is whether 
+cv.lasso=cv.glmnet(x=x_no_zero_scale_1,y=ys,alpha=1,standardize=FALSE,family="binomial",type.measure = "class")
+print(paste("The lamda giving the smallest CV error: ",cv.lasso$lambda.min))
+print(paste("The one standard deviation lambda: ",cv.lasso$lambda.1se))
 
-cv.lasso=cv.glmnet(x=x_no_zero_scale_1,y=ys,alpha=1,standardize=FALSE,family="binomial")
-print(paste("The lamda giving the smallest CV error",cv.lasso$lambda.min))
 
 
-
-plot(lassofit,xvar="lambda",label=TRUE)
-mtext("Lasso",font=2, side = 3, line = -2, outer = TRUE)
-abline(v=log(cv.lasso$lambda.1se))
-abline(v=log(cv.lasso$lambda.min))
-plot(cv.lasso)
+#abline(v=log(cv.lasso$lambda.min))
 
 ```
 
 
+```{r echo=FALSE, fig.cap="The plot shows the number of coefficients that have not been shrunken, for the optimal lambda - one standard deviation."}
+plot(lassofit,xvar="lambda",label=TRUE)
+mtext("Lasso",font=2, side = 3, line = -2, outer = TRUE)
+abline(v=log(cv.lasso$lambda.1se))
+```
 
-We can see the covariates picked with the lasso method. These are: textural feature AHT number 110, rotationally invariante LBP number 4 and 52. In addition three of the covariates realted to the level of grayscale are included as well. Finally a KPCA number 2 is included.  It is rather difficult to say whether these results were as expected, considering the lack of knowledge about the covariates.
+```{r echo=FALSE, fig.cap="The plot shows the log-lambda and the corresponding misclassification error. Additionally on the top we see how many covariates minimum lambda and one standard deviation lambda give."}
+plot(cv.lasso)
+```
+
+
+
+We can see the covariates picked with the lasso method. These are: 6 different textural feature AHT number 9, 98, 110, 120, 132, 135, rotationally invariante LBP number 4 and 52. It shows discriminative_color 10 is non-zero. In addition three of the covariates realted to the level of grayscale are included as well, namely 7, 25 and 32. Finally shapeDNA number 72 and KPCA number 2 is included.  It is rather difficult to say whether these results were as expected, considering the lack of knowledge about the covariates. We could perhaps speculate that, for example, grey level scale indicates some sort of contrast in the video/pictures, giving certain indication of edges and features more pronounced for malignant lesions.
 ```{r echo=FALSE}
 # Lasso method results of coefficients picked, nice print-out
 
@@ -159,16 +176,25 @@ lasso_coef_print
 
 ```
 ## Group Lasso
-We attempt the group lasso now. The groups chosen are structured such that the covariates belonging to the group of variables presented in the begining, are in the same group in this analysis as well. This has been the only sensible decision of group split, taken into considerationg the number of covariates and the difficulties considering their origin. 
+
+We proceed to apply the group lasso to our dataset. The groups chosen are structured such that the covariates belonging to the group of variables presented in the begining, are in the same group in this analysis as well. This has been the only sensible decision of a group split, taken into considerationg the number of covariates and the difficulties concerning decyphering their concrete meaning. 
 
 
-```{r grouplasso, echo=FALSE}
+```{r , echo=FALSE}
 set.seed(3012)
 cv_testing_gglasso <- cv.gglasso(x=x_no_zero_scale_1, y=ys_gl, group=index_s, nfolds=5, loss="logit")
-plot(cv_testing_gglasso$gglasso.fit )
+```
 
+```{r grouplasso, echo=FALSE, fig.cap="The plot shows different groups of coefficients, and lambdas at which they are being shrunken. The vertical line indicates the one standard deviation lambda obtained through cross validation. "}
+plot(cv_testing_gglasso$gglasso.fit)
+abline(v=log(cv_testing_gglasso$lambda.1se))
+```
+
+```{r cvgrouplasso, echo=FALSE, fig.cap="The plot shows the log-lambda and the corresponding misclassification error. Additionally on the top we see how many groups of covariates minimum lambda and one standard deviation lambda give."}
 plot(cv_testing_gglasso)
+```
 
+```{r ,echo=FALSE}
 group_lasso_coef <- coef(cv_testing_gglasso$gglasso.fit, s=cv_testing_gglasso$lambda.1se)
 coef_value_gglasso <- group_lasso_coef[which(group_lasso_coef!=0)]
 coef_name_gglasso <- row.names(group_lasso_coef)[which(group_lasso_coef!=0)]
@@ -178,12 +204,16 @@ print_coef_gglasso
 
 ```
 
-The covariate groups chosen by the group lasso are as given above. If we compare it to the ones chosen by the lasso, we observe that the covariates chosen by the lasso come from the three of groups picked by the group lasso. The differene between the two is that the group lasso picks type of light covariate but not the rotational invariance.
+The covariate groups chosen by the group lasso are as given above. If we compare it to the ones chosen by the lasso, we observe that the groups of covariates chosen by the group lasso are represented among the covariates which have not bene shrunken by the lasso . The difference between the two is that the group lasso picks the covariate indicating type of light but not the rotational invariance, discriminateive color and shapeDNA.
+
+# Prediction
+
+We wish to point out that due to a low number of observations, we do not believe splitting the dataset into training and test set is feasible. We believe we would not obtain a realistic representation of the fraction of malignant lesions in population with so few observations in both train and test set. Hence we will not be including any prediction, but will do some inference in the next section
 
 
 # Inference
 
-We choose to do the bootstrapping on the lasso only.
+For the inference section we choose to do bootstrapping on the lasso, in order to infere whether the covariates that have not been shrunken, have an indication of actually being significant.
 
 ```{r bootstrap, echo=FALSE}
 set.seed(3012)
@@ -200,36 +230,43 @@ for (b in 1:B)
   wids=rep(0,n)
   for (i in 1:n)
     wids[i]=sum(idx==i)
-  boot=cv.glmnet(x_no_zero_scale_1,ys,weights=wids)
+  boot=cv.glmnet(x_no_zero_scale_1,ys,weights=wids,standardize=FALSE,family="binomial",type.measure = "class")
   lasso_mx[b,]=as.vector(coef(boot)) #automatic lambda 1sd
 }
 
 investigate_mx <- lasso_mx[,which(lasso_coef != 0)]
 colnames(investigate_mx)=c(lasso_coef_print[,1])
 
+
+```
+
+
+
+```{r echo=FALSE, fig.cap="Boxplot for coefficients for 14 covaraites including the intercept."}
 boxplot(investigate_mx)  
-```
-
-
-
-```{r echo=FALSE}
-
-boxplot(investigate_mx[,2:8])
+#boxplot(investigate_mx[,8:15])
 
 
 ```
 
-```{r echo=FALSE}
+```{r echo=FALSE, fig.cap="Boxplot showing the latter 8 coefficients, making it easier to see the coefficient which do not have median at zero. Due to the long covariate names, we provide these here, in order of appearance in the boxplot: Rot_invariant_LBP4, Rot_invariant_LBP52, Discriminative_color10, Col_gray_lvl_co-occurr_mx7, Col_gray_lvl_co-occurr_mx25, Col_gray_lvl_co-occurr_mx32, shapeDNA72, KPCA2."}
+
+boxplot(investigate_mx[,8:15])
+
+
+```
+
+```{r echo=FALSE, fig.cap="Barplot showing the proportion of time each of the covariates is zero."}
 lasso0perc=apply(abs(investigate_mx)<.Machine$double.eps,2,mean)
 barplot(lasso0perc)
 ```
 
-From the boxplots we observe that majority of the boxes have median at zero, or are very close to zero. This is further confirmed throught the barplot. In the barplot we can see that almost all of the coefficients are zero at 40\% of the time. The only coefficient that is noticeably different, and is almost never zero, is one of the coefficients for the gray-level contrast.
+From the boxplots we observe that majority of the boxes have median at zero, or are very close to zero. This is further confirmed throught the barplot. In the barplot we can see that almost all of the coefficients are zero at 40\% of the time. The only coefficient that is noticeably different, and is almost never zero, is one of the coefficients for the gray-level contrast, followed by one of the coefficients for rotational invariance and another gray-level contrast coefficient.
 
 # Discussion and concluding words
 
-After the analysis has been conducted, and inference has been performed, the results were slightly suprising. Eventhough we did not know exactly what to expect due to the large number of covariates, most of which have been extracted from videos, as mentioned previously, it was rather suprising only one of the coefficients was non-zero less than 40\% of the time. 
-We could speculate whether the results would have been different have we had opted out for a classification problem with three classes.
+After the analysis has been conducted, and inference has been performed, the results were slightly suprising. Eventhough we did not know exactly what to expect due to the large number of covariates, most of which have been extracted from videos, as mentioned previously, it was rather suprising only one of the coefficients was almost never zero, while only 3 were non-zero less than 40\% of the time. 
+We could speculate whether the results would have been different have we had opted out for a classification problem with three classes. 
 
 
 # References
