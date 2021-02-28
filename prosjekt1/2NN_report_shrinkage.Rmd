@@ -18,15 +18,15 @@ set.seed(3012)
 
 # Introduction
 
-The goal of this project is to apply the shrinkage methods to a dataset of the groups choice. As one of the main methods, of the first part of the course, has been lasso, that is often applied in cases when the number of covariates is much larger than number of observations, in addition to there being very few observations. Hence, we have chosen a dataset satisfying these criteria. 
+The goal of this project is to apply the shrinkage methods to a dataset of the groups choice. One of the main methods of the first part of the course has been lasso, which is often applied in cases when the number of covariates is much larger than the number of observations. Therefore, we have chosen a dataset satisfying these criteria. 
 
 # Dataset
 The dataset in question is a Gastrointestinal Lesions in Regular Colonoscopy dataset, which can be accessed at https://archive.ics.uci.edu/ml/datasets/Gastrointestinal+Lesions+in+Regular+Colonoscopy.
 
-This dataset contains a response variable, which is one of the three types of lesions (growth): hyperplasic, adenoma and serates, with the firts one being benign and the latter two malignant. 
+This dataset contains a response variable, which is one of the three types of lesions (growth): hyperplasic, adenoma and serates, with the first one being benign and the latter two malignant. 
 The rest of the covariates, 699 of them, have been extracted from video, more specificly from a colonoscopy (a camera being sent through the bowels), and represent different aspects of it, through rotation, texture, colour, contrast etc. They are divided roughly in three groups, which are textural features, color features and shape features, all having multiple subgroups. 
 
-This dataset had to be labeled all over again, as the .txt file including the data did not have a header. Relabeling code is available in the [git-repo](https://github.com/dozzedoff/MA8701/tree/main/prosjekt1). 
+This dataset had to be labelled all over again, as the .txt file including the data did not have a header. Relabelling code is available in the [git-repo](https://github.com/dozzedoff/MA8701/tree/main/prosjekt1). 
 In this dataset, majority of the 699 covariates have not been easy to decipher, both due to their large number and the lack of information on them, both on the webpage of the dataset, but also in the paper that the dataset is connected to. Most of the information about the variables have been references to other papers which do analysis and describe the process of extracting some of these variables from video. We will include references to some of these articles in the end of the report. The dataset is connected to a published paper [Computer-Aided Classification of Gastrointestinal Lesions in Regular Colonoscopy](https://hal.archives-ouvertes.fr/hal-01291797v2/document). 
 
 The names of the covariates, which have been used as labels are the following: 
@@ -62,7 +62,7 @@ An observations made is that some of the covariates had only zero entries, but d
 
 The problem at hand is a classification problem. As such, we have chosen to apply logistic regression, lasso and group lasso. We attampt using logistic regression, hoping it can serve as sort of reference. The reason behind choosing lasso is due to the large number of covariates in the dataset, which we hope could be shrunk. Group lasso is chosen due to a natural grouping of the variables due to the structuring of the dataset.  
 
-We show a contigency table, showing the proportion of the number of positive and negative responses from the dataset and present some simple summary of variables representing each of the main groups. Due to the large number of covariates, and inability to deem some of them more important than others, due to lack of domain knowledge, we conclude the exploratory analysis with that. If the reader is interested in all of the covariates, we suggest they inspect the covaraites on their own initiative.
+We show a contigency table, showing the proportion of the number of positive and negative responses from the dataset and present some simple summary of variables representing each of the main groups. Due to the large number of covariates, and inability to deem some of them more important than others, due to the lack of domain knowledge, we conclude the exploratory analysis with that. If the reader is interested in all of the covariates, we suggest they inspect the rest of the covaraites on their own initiative.
 
 
 ```{r data, include=FALSE}
@@ -100,7 +100,7 @@ summary(test_ds[,c(1,2,3,169,425,441,454,461,468,501,601)])
 
 ## Logistic regression
 
-Unfortunately, the logistic regression did not manage to run, and we have recieved an error: *does not converge*, indicating that we most probably have multicollinearity issues and the issue with number of covariates being too large comapared to the number of observations. We have attempted to surpass this by increasing the number of iterations, but even though it converges, it does not provide meaningful results, with very many coefficients being set to NA.
+Unfortunately, the logistic regression did not manage to run, and we have recieved an error: *does not converge*, indicating that we most probably have multicollinearity issues and the issue with number of covariates being too large comapared to the number of observations. We have attempted to surpass this by increasing the number of iterations, but even though it then converges, it does not provide meaningful results, with very many coefficients being set to NA.
 
 ```{r include=FALSE}
 # design matrix
@@ -164,7 +164,7 @@ plot(cv.lasso)
 
 
 
-We can see the covariates picked with the lasso method. These are: 6 different textural feature AHT number 9, 98, 110, 120, 132, 135, rotationally invariante LBP number 4 and 52. It shows discriminative_color 10 is non-zero. In addition three of the covariates realted to the level of grayscale are included as well, namely 7, 25 and 32. Finally shapeDNA number 72 and KPCA number 2 is included.  It is rather difficult to say whether these results were as expected, considering the lack of knowledge about the covariates. We could perhaps speculate that, for example, grey level scale indicates some sort of contrast in the video/pictures, giving certain indication of edges and features more pronounced for malignant lesions.
+We can see the covariates picked with the lasso method. These are: 6 different textural feature AHT number 9, 98, 110, 120, 132, 135, rotationally invariante LBP number 4 and 52. It shows discriminative_color 10 is non-zero. In addition three of the covariates realted to the level of grayscale are included as well, namely 7, 25 and 32. Finally shapeDNA number 72 and KPCA number 2 are included.  It is rather difficult to say whether these results were as expected, considering the lack of knowledge about the covariates. We could perhaps speculate that, for example, grey level scale indicates some sort of contrast in the video/pictures, giving certain indication of edges and features which are more pronounced for malignant lesions.
 ```{r echo=FALSE}
 # Lasso method results of coefficients picked, nice print-out
 
@@ -177,7 +177,7 @@ lasso_coef_print
 ```
 ## Group Lasso
 
-We proceed to apply the group lasso to our dataset. The groups chosen are structured such that the covariates belonging to the group of variables presented in the begining, are in the same group in this analysis as well. This has been the only sensible decision of a group split, taken into considerationg the number of covariates and the difficulties concerning decyphering their concrete meaning. 
+We proceed to apply the group lasso to our dataset. The groups chosen are structured such that the covariates belonging to the group of variables presented in the beginning, are in the same group in this analysis as well. This has been the only sensible decision of a group split, taken into considerationg the number of covariates and the difficulties concerning decyphering their concrete meaning. 
 
 
 ```{r , echo=FALSE}
@@ -204,11 +204,11 @@ print_coef_gglasso
 
 ```
 
-The covariate groups chosen by the group lasso are as given above. If we compare it to the ones chosen by the lasso, we observe that the groups of covariates chosen by the group lasso are represented among the covariates which have not bene shrunken by the lasso . The difference between the two is that the group lasso picks the covariate indicating type of light but not the rotational invariance, discriminateive color and shapeDNA.
+The covariate groups chosen by the group lasso are as given above. If we compare it to the ones chosen by the lasso, we observe that the groups of covariates chosen by the group lasso are represented among the covariates which have not bene shrunken by the lasso. The difference between the two is that the group lasso picks the covariate indicating type of light but not the rotational invariance, discriminateive color and shapeDNA.
 
 # Prediction
 
-We wish to point out that due to a low number of observations, we do not believe splitting the dataset into training and test set is feasible. We believe we would not obtain a realistic representation of the fraction of malignant lesions in population with so few observations in both train and test set. Hence we will not be including any prediction, but will do some inference in the next section
+We wish to point out that due to a low number of observations, we do not believe splitting the dataset into training and test set is feasible. We believe we would not be able to obtain a realistic representation of the fraction of malignant lesions in population with so few observations in both train and test set. Hence we will not be including any prediction, but will do some inference in the next section.
 
 
 # Inference
@@ -261,11 +261,11 @@ lasso0perc=apply(abs(investigate_mx)<.Machine$double.eps,2,mean)
 barplot(lasso0perc)
 ```
 
-From the boxplots we observe that majority of the boxes have median at zero, or are very close to zero. This is further confirmed throught the barplot. In the barplot we can see that almost all of the coefficients are zero at 40\% of the time. The only coefficient that is noticeably different, and is almost never zero, is one of the coefficients for the gray-level contrast, followed by one of the coefficients for rotational invariance and another gray-level contrast coefficient.
+From the boxplots we observe that majority of the boxes have median at zero, or are very close to zero. This is further confirmed throught the barplot. In the barplot we can see that almost all of the coefficients are zero at least 40\% of the time. The only coefficient that is noticeably different, and is almost never zero, is one of the coefficients for the gray-level contrast, followed by one of the coefficients for rotational invariance and another gray-level contrast coefficient being zero between 20 and 40\% of the time.
 
 # Discussion and concluding words
 
-After the analysis has been conducted, and inference has been performed, the results were slightly suprising. Eventhough we did not know exactly what to expect due to the large number of covariates, most of which have been extracted from videos, as mentioned previously, it was rather suprising only one of the coefficients was almost never zero, while only 3 were non-zero less than 40\% of the time. 
+After the analysis has been conducted, and inference has been performed, the results were slightly suprising. Even though we did not know exactly what to expect due to the large number of covariates, most of which have been extracted from videos, as mentioned previously, it was rather suprising only one of the coefficients was almost never zero, while in total only 3 were non-zero less than 40\% of the time. 
 We could speculate whether the results would have been different have we had opted out for a classification problem with three classes. 
 
 
