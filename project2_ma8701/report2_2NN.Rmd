@@ -1,0 +1,46 @@
+---
+title: "Project 2"
+author: "Bjerke, Martin & Spremic, Mina"
+date: "4/26/2021"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+# Introduction
+
+The aim of this project is to predict the sales of video games using random forest. The dataset is scraped video game sales until 2016, obtained from Kaggle. 
+Additionally we wish apply some of the models from the XAI part of the course to explain which covaraites were the most important in the prediction, since random forests is an ensemble type of method and not interpretable.
+We give some explanation of the dataset along with summary of how the dataset has been treated. We present some exploratory analysis of the dataset. First we divide the dataset into train and test set and apply the random forests, Finally, we discuss the intepretation and results and conclude the report.
+
+# Dataset and its preparation
+
+Preparation of the dataset can be found in a separate .R file in the repository labelled as "data_cleaning.R".
+We give a summary of the content of the file, meaning the way we proceeded to 
+
+Firstly we removed the columns which are not entering our data analysis, which are the other types of sales  are not Global, and these are North American, Japenese, European and Other sales. Secondly we removed the rows for which both the critics score and the user score, as well as the counts are empty or NA. 
+Next step was to add the missing year of release, as there were not too many observations missing this, and it is possible to obtain this information. 
+There have been some rows where either the critic score and count or the user score and count were either missing, to be determined (tbd) or simply NA. Here we have chosen to impute the values, based on a mean of other observations which have a similar score, either the user or critic one (depending on which we are imputing for).
+
+Reference for why imputing and not surrogate split: http://arxiv.org/pdf/0811.1645.pdf
+
+# Exploratory analysis
+
+
+
+
+# Method
+### Random forest
+
+# Results
+
+### Prediction
+
+### Evaluation/uncertainty
+
+### Explainability
+
+
+# Conclusion 
