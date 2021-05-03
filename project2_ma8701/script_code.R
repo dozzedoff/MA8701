@@ -63,6 +63,8 @@ ds_vgs_imputed$Rating[ds_vgs_imputed$Rating== "RP"] <-"Unknown"
 ds_vgs_imputed$Rating[ds_vgs_imputed$Rating== ""] <-"Unknown"
 ds_vgs_imputed$Rating[ds_vgs_imputed$Rating== "EC"] <-"E"
 
+
+write.csv(ds_vgs_imputed, "vgs_22_2016_expl_analysis.csv")
 #ds_vgs_imputed_with_name <- ds_vgs_imputed 
 #ds_vgs_imputed <- subset(ds_vgs_imputed, select = -c(Name))
 
@@ -118,7 +120,13 @@ mean_sales_genre <- ds_vgs_imputed %>% group_by(Genre) %>% summarise(mean_gs = m
 median_sales_genre <- ds_vgs_imputed %>% group_by(Genre) %>% summarise(median_gs = median(Global_Sales))
 
 # Sales per region of each genre or smtng like that
+sum_sales_developer <- ds_vgs_expl_analysis %>% group_by(Developer) %>% summarise(sum_gs = sum(Global_Sales))
+top_sales_developer <- top_n(arrange(sum_sales_developer,desc(sum_gs)),10)
+ggplot(top_sales_developer, aes(x=Developer, y=sum_gs)) + geom_col() + ggtitle("Top ten developers with highest overall global sales") + theme(text = element_text(size=3))
 
+sum_sales_publisher <- ds_vgs_expl_analysis %>% group_by(Publisher) %>% summarise(sum_gs = sum(Global_Sales))
+top_sales_publisher <- top_n(arrange(sum_sales_publisher,desc(sum_gs)),10)
+ggplot(top_sales_publisher, aes(x=Developer, y=sum_gs)) + geom_col() + ggtitle("Top ten publisher with highest overall global sales") + theme(text = element_text(size=3))
 
 
 # Dummy variable coding 
